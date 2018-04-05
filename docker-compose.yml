@@ -2,7 +2,7 @@ version: '2.1'
 
 services:
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:v1.8.2
     volumes:
       - ./config:/prometheus
       - ./data/prometheus:/data
@@ -16,16 +16,9 @@ services:
     networks:
       - promnet
 
-  node:
-    image: prom/node-exporter
-    ports:
-      - 9100:9100
-    restart: always
-    networks:
-      - promnet
 
   alertmanager:
-    image: prom/alertmanager
+    image: prom/alertmanager:v0.11.0
     volumes:
       - ./config:/prometheus
       - ./data/alertmanager:/data
@@ -60,7 +53,7 @@ services:
   alerta:
     image: alerta/alerta-web
     ports:
-      - 9080:80
+      - 9080:8080
     depends_on:
       - db
     environment:
@@ -74,6 +67,7 @@ services:
       - ALLOWED_GITHUB_ORGS=${ALLOWED_GITHUB_ORGS:-*}
       - GITLAB_URL=${GITLAB_URL:-not-set}
       - ALLOWED_GITLAB_GROUPS=${ALLOWED_GITLAB_GROUPS:-*}
+      - INSTALL_PLUGINS=slack,prometheus
       - PLUGINS=${PLUGINS:-reject,prometheus}
       - ALERTMANAGER_API_URL=http://alertmanager:9093
       - ORIGIN_BLACKLIST=${ORIGIN_BLACKLIST:-not-set}
